@@ -56,6 +56,8 @@ const addSoundForm = document.getElementById('add-sound-form');
 const editSoundForm = document.getElementById('edit-sound-form');
 const btnDeleteSound = document.getElementById('btn-delete-sound');
 const btnToggleEdit = document.getElementById('btn-toggle-edit');
+const volumeSlider = document.getElementById('master-volume');
+const volumeValueDisplay = document.getElementById('volume-value');
 const soundboardGrid = document.getElementById('soundboard-grid');
 const loadingSpinner = document.getElementById('loading-spinner');
 const userDisplay = document.getElementById('user-display');
@@ -64,6 +66,7 @@ const btnLogout = document.getElementById('btn-logout');
 let currentUser = null;
 let lastPlayedTimestamp = 0;
 let isEditMode = false;
+let globalVolume = 1.0;
 let ytPlayer = null;
 let ytApiReady = false;
 
@@ -209,6 +212,18 @@ btnToggleEdit.addEventListener('click', () => {
     }
 });
 
+// Volume Control Logic
+volumeSlider.addEventListener('input', (e) => {
+    const val = e.target.value;
+    globalVolume = val / 100;
+    volumeValueDisplay.textContent = val + "%";
+    
+    // Jika sedang memutar YouTube, update volumenya langsung
+    if (ytPlayer && ytApiReady) {
+        ytPlayer.setVolume(val);
+    }
+});
+
 // --- SOUNDBOARD LOGIC ---
 
 // Load sounds from Database
@@ -350,6 +365,7 @@ function playSound(url) {
         // Play via YouTube API
         if (ytApiReady && ytPlayer) {
             ytPlayer.loadVideoById(ytId);
+            ytPlayer.setVolume(globalVolume * 100); // Set volume YouTube
             ytPlayer.playVideo();
         } else {
             console.error("YouTube API not ready yet");
@@ -357,6 +373,7 @@ function playSound(url) {
     } else {
         // Play via HTML5 Audio
         const audio = new Audio(url);
+        audio.volume = globalVolume; // Set volume Audio HTML5
         audio.play().catch(e => console.error("Playback failed:", e));
     }
 }

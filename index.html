@@ -48,13 +48,23 @@
             </div>
         </div>
 
-        <div class="mb-4 d-flex gap-2">
-            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addSoundModal">
-                + Tambah Sound
-            </button>
-            <button id="btn-toggle-edit" class="btn btn-outline-primary">
-                ✏️ Mode Edit
-            </button>
+        <div class="mb-4 d-flex flex-wrap align-items-center gap-3">
+            <div class="d-flex gap-2">
+                <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addSoundModal">
+                    + Tambah Sound
+                </button>
+                <button id="btn-toggle-edit" class="btn btn-outline-primary">
+                    ✏️ Mode Edit
+                </button>
+            </div>
+            
+            <!-- Volume Control -->
+            <div class="d-flex align-items-center bg-white border rounded px-3 py-1 shadow-sm" style="min-width: 200px;">
+                <span class="me-2">🔈</span>
+                <input type="range" class="form-range" id="master-volume" min="0" max="100" value="100">
+                <span class="ms-2">🔊</span>
+                <span id="volume-value" class="ms-2 fw-bold text-primary" style="min-width: 40px;">100%</span>
+            </div>
         </div>
 
         <div id="soundboard-grid" class="row g-3">
