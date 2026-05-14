@@ -48,9 +48,12 @@
             </div>
         </div>
 
-        <div class="mb-4">
+        <div class="mb-4 d-flex gap-2">
             <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addSoundModal">
                 + Tambah Sound
+            </button>
+            <button id="btn-toggle-edit" class="btn btn-outline-primary">
+                ✏️ Mode Edit
             </button>
         </div>
 
@@ -86,6 +89,35 @@
                             <div class="form-text">Mendukung direct link (.mp3) dan link YouTube.</div>
                         </div>
                         <button type="submit" class="btn btn-primary">Simpan</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Edit Sound -->
+    <div class="modal fade" id="editSoundModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Sound</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="edit-sound-form">
+                        <input type="hidden" id="edit-sound-id">
+                        <div class="mb-3">
+                            <label for="edit-sound-name" class="form-label">Nama Sound</label>
+                            <input type="text" class="form-control" id="edit-sound-name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit-sound-url" class="form-label">URL Audio atau Link YouTube</label>
+                            <input type="url" class="form-control" id="edit-sound-url" required>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <button type="button" id="btn-delete-sound" class="btn btn-danger">Hapus Sound</button>
+                            <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
+                        </div>
                     </form>
                 </div>
             </div>

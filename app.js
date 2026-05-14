@@ -53,6 +53,9 @@ const btnLogin = document.getElementById('btn-login');
 const btnRegister = document.getElementById('btn-register');
 const authError = document.getElementById('auth-error');
 const addSoundForm = document.getElementById('add-sound-form');
+const editSoundForm = document.getElementById('edit-sound-form');
+const btnDeleteSound = document.getElementById('btn-delete-sound');
+const btnToggleEdit = document.getElementById('btn-toggle-edit');
 const soundboardGrid = document.getElementById('soundboard-grid');
 const loadingSpinner = document.getElementById('loading-spinner');
 const userDisplay = document.getElementById('user-display');
@@ -60,6 +63,7 @@ const btnLogout = document.getElementById('btn-logout');
 
 let currentUser = null;
 let lastPlayedTimestamp = 0;
+let isEditMode = false;
 let ytPlayer = null;
 let ytApiReady = false;
 
@@ -191,6 +195,20 @@ function getFriendlyErrorMessage(errorCode) {
 // Logout
 btnLogout.addEventListener('click', () => signOut(auth));
 
+// Toggle Edit Mode
+btnToggleEdit.addEventListener('click', () => {
+    isEditMode = !isEditMode;
+    if (isEditMode) {
+        soundboardGrid.classList.add('edit-mode-active');
+        btnToggleEdit.textContent = "✅ Selesai Edit";
+        btnToggleEdit.classList.replace('btn-outline-primary', 'btn-primary');
+    } else {
+        soundboardGrid.classList.remove('edit-mode-active');
+        btnToggleEdit.textContent = "✏️ Mode Edit";
+        btnToggleEdit.classList.replace('btn-primary', 'btn-outline-primary');
+    }
+});
+
 // --- SOUNDBOARD LOGIC ---
 
 // Load sounds from Database
@@ -230,13 +248,76 @@ function createSoundButton(id, sound) {
     const col = document.createElement('div');
     col.className = 'col-6 col-md-3 col-lg-2 sound-item';
     col.innerHTML = `
-        <div class="card h-100 text-center p-3" onclick="triggerPlayback('${sound.url}')">
-            <div class="display-6 mb-2">🔊</div>
-            <div class="fw-bold text-truncate">${sound.name}</div>
+        <div class="card h-100 text-center p-3 position-relative">
+            <button class="btn btn-sm btn-light position-absolute top-0 end-0 m-1 edit-btn" onclick="openEditModal('${id}', '${sound.name}', '${sound.url}')" style="z-index: 10;">✏️</button>
+            <div onclick="triggerPlayback('${sound.url}')" style="cursor: pointer;">
+                <div class="display-6 mb-2">🔊</div>
+                <div class="fw-bold text-truncate">${sound.name}</div>
+            </div>
         </div>
     `;
     soundboardGrid.appendChild(col);
 }
+
+// --- EDIT & DELETE LOGIC ---
+
+window.openEditModal = function(id, name, url) {
+    document.getElementById('edit-sound-id').value = id;
+    document.getElementById('edit-sound-name').value = name;
+    document.getElementById('edit-sound-url').value = url;
+    
+    const modal = new bootstrap.Modal(document.getElementById('editSoundModal'));
+    modal.show();
+};
+
+editSoundForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const id = document.getElementById('edit-sound-id').value;
+    const name = document.getElementById('edit-sound-name').value;
+    const url = document.getElementById('edit-sound-url').value;
+
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Menyimpan...';
+
+    try {
+        const soundRef = ref(db, `users/${currentUser.uid}/sounds/${id}`);
+        await set(soundRef, {
+            name: name,
+            url: url,
+            updatedAt: Date.now()
+        });
+
+        const modal = bootstrap.Modal.getInstance(document.getElementById('editSoundModal'));
+        modal.hide();
+    } catch (error) {
+        alert("Gagal mengupdate sound: " + error.message);
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Simpan Perubahan';
+    }
+});
+
+btnDeleteSound.addEventListener('click', async () => {
+    const id = document.getElementById('edit-sound-id').value;
+    if (!confirm("Apakah Anda yakin ingin menghapus sound ini?")) return;
+
+    btnDeleteSound.disabled = true;
+    btnDeleteSound.textContent = 'Menghapus...';
+
+    try {
+        const soundRef = ref(db, `users/${currentUser.uid}/sounds/${id}`);
+        await set(soundRef, null); // Set null to delete
+
+        const modal = bootstrap.Modal.getInstance(document.getElementById('editSoundModal'));
+        modal.hide();
+    } catch (error) {
+        alert("Gagal menghapus sound: " + error.message);
+    } finally {
+        btnDeleteSound.disabled = false;
+        btnDeleteSound.textContent = 'Hapus Sound';
+    }
+});
 
 // Trigger playback (Write to DB for sync)
 window.triggerPlayback = function(url) {

@@ -31,3 +31,26 @@ body {
     font-size: 2rem;
     margin-bottom: 10px;
 }
+
+/* Edit Mode Styling */
+.edit-btn {
+    display: none; /* Sembunyikan secara default */
+}
+
+.edit-mode-active .edit-btn {
+    display: block; /* Munculkan saat mode edit aktif */
+}
+
+.edit-mode-active .card {
+    border: 2px dashed #007bff;
+    animation: shake 0.5s infinite;
+}
+
+@keyframes shake {
+    0% { transform: rotate(0deg); }
+    25% { transform: rotate(0.5deg); }
+    50% { transform: rotate(0deg); }
+    75% { transform: rotate(-0.5deg); }
+    100% { transform: rotate(0deg); }
+}
+
