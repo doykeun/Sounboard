@@ -1,0 +1,33 @@
+body {
+    background-color: #f8f9fa;
+    min-height: 100vh;
+}
+
+#soundboard-grid .card {
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    height: 100%;
+}
+
+#soundboard-grid .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+#soundboard-grid .card:active {
+    transform: scale(0.95);
+}
+
+.sound-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    text-align: center;
+}
+
+.sound-icon {
+    font-size: 2rem;
+    margin-bottom: 10px;
+}
