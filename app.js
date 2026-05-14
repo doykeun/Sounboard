@@ -56,8 +56,6 @@ const addSoundForm = document.getElementById('add-sound-form');
 const editSoundForm = document.getElementById('edit-sound-form');
 const btnDeleteSound = document.getElementById('btn-delete-sound');
 const btnToggleEdit = document.getElementById('btn-toggle-edit');
-const btnToggleMic = document.getElementById('btn-toggle-mic');
-const micStatusAlert = document.getElementById('mic-status');
 const soundboardGrid = document.getElementById('soundboard-grid');
 const loadingSpinner = document.getElementById('loading-spinner');
 const userDisplay = document.getElementById('user-display');
@@ -66,10 +64,6 @@ const btnLogout = document.getElementById('btn-logout');
 let currentUser = null;
 let lastPlayedTimestamp = 0;
 let isEditMode = false;
-let isMicMixing = false;
-let audioCtx = null;
-let micStream = null;
-let mixerNode = null;
 let ytPlayer = null;
 let ytApiReady = false;
 
@@ -212,35 +206,6 @@ btnToggleEdit.addEventListener('click', () => {
         soundboardGrid.classList.remove('edit-mode-active');
         btnToggleEdit.textContent = "✏️ Mode Edit";
         btnToggleEdit.classList.replace('btn-primary', 'btn-outline-primary');
-    }
-});
-
-// Toggle Mic Mixing
-btnToggleMic.addEventListener('click', async () => {
-    if (!isMicMixing) {
-        try {
-            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            const micSource = audioCtx.createMediaStreamSource(micStream);
-            
-            mixerNode = audioCtx.createMediaStreamDestination();
-            micSource.connect(audioCtx.destination); // Dengar diri sendiri
-            
-            isMicMixing = true;
-            btnToggleMic.textContent = "🎤 Mix Mic: ON";
-            btnToggleMic.classList.replace('btn-outline-secondary', 'btn-success');
-            micStatusAlert.classList.remove('d-none');
-            
-            if (audioCtx.state === 'suspended') await audioCtx.resume();
-        } catch (err) {
-            alert("Gagal mengakses mic: " + err.message);
-        }
-    } else {
-        if (micStream) micStream.getTracks().forEach(track => track.stop());
-        isMicMixing = false;
-        btnToggleMic.textContent = "🎤 Mix Mic: OFF";
-        btnToggleMic.classList.replace('btn-success', 'btn-outline-secondary');
-        micStatusAlert.classList.add('d-none');
     }
 });
 
@@ -392,13 +357,6 @@ function playSound(url) {
     } else {
         // Play via HTML5 Audio
         const audio = new Audio(url);
-        
-        // Jika Mic Mixing aktif, rute audio melalui AudioContext
-        if (isMicMixing && audioCtx) {
-            const source = audioCtx.createMediaElementSource(audio);
-            source.connect(audioCtx.destination);
-        }
-        
         audio.play().catch(e => console.error("Playback failed:", e));
     }
 }
